@@ -1,27 +1,27 @@
 import { useRef, useEffect } from "react";
 
 import morphTransition from "./morphTransition";
-import usePrevious from "./usePrevious";
 import { getRect } from "./utils";
 
 const defaultsOptions = {
   portalElement: document.body,
   getMargins: true,
+  type: "morph",
   spring: {
-    stiffness: 179,
-    damping: 50,
-    mass: 1
+    damping: 26,
+    mass: 1,
+    stiffness: 170
   }
 };
 
-const STATES_MAXINE = {
-  initialState: "INIT",
-  states: {
-    // Hide to
-    // Save previous
-    INIT: "GET_RECTS"
-  }
-};
+// const STATES_MAXINE = {
+//   initialState: "INIT",
+//   states: {
+//     // Hide to
+//     // Save previous
+//     INIT: "GET_RECTS"
+//   }
+// };
 
 export default function useMorph(opts = defaultsOptions) {
   const options = { ...defaultsOptions, ...opts };
@@ -37,8 +37,9 @@ export default function useMorph(opts = defaultsOptions) {
   const prevSpring = useRef();
 
   useEffect(() => {
-    prevToRef.current = to;
+		// if (!to) return;
 
+    prevToRef.current = to;
     to.style.visibility = "visible";
 
     if (!from) return;
@@ -46,23 +47,30 @@ export default function useMorph(opts = defaultsOptions) {
     isAnimating = true;
 
     const rectTo = getRect(to, { getMargins: options.getMargins });
+    let cleanup;
 
-    const cleanup = morphTransition({
-      from,
-      to,
-      rectFrom,
-      rectTo,
-      fromValue:
-        prevSpring.current !== undefined &&
-        prevSpring.current.currentValue !== 1
-          ? 1 - prevSpring.current.currentValue
-          : 0,
-      initialVelocity: prevSpring.current && prevSpring.current.currentVelocity,
-      onUpdate(s) {
-        prevSpring.current = s;
-      },
-      options
-    });
+    switch (options.type) {
+      case "fade":
+      case "morph":
+      default:
+        cleanup = morphTransition({
+          from,
+          to,
+          rectFrom,
+          rectTo,
+          fromValue:
+            prevSpring.current !== undefined &&
+            prevSpring.current.currentValue !== 1
+              ? 1 - prevSpring.current.currentValue
+              : 0,
+          initialVelocity:
+            prevSpring.current && prevSpring.current.currentVelocity,
+          onUpdate(s) {
+            prevSpring.current = s;
+          },
+          options
+        });
+    }
 
     return () => {
       if (isAnimating) cleanup();
@@ -74,5 +82,13 @@ export default function useMorph(opts = defaultsOptions) {
     to = node;
   };
 
-  return { ref: getRef, style: { visibility: "hidden" } };
+  const props = (p = {}) => ({
+    ...p,
+    ref: getRef,
+    style: { visibility: "hidden" },
+    "data-rm": true,
+    ...(options.onClick ? { onClick: options.onClick } : {})
+  });
+
+  return props;
 }

@@ -18,18 +18,44 @@ body {
   padding: 0;
 }
 
+.from,
+.to,
+.three {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .from {
-  background: #666;
+  background: #660;
   width: 200px;
   height: 200px;
+  border-radius: 100px;
 }
+
 .to {
-  background: #666;
+  background: #606;
   width: 40px;
   height: 40px;
 }
+
 .three {
-  background: #666;
+  background: #066;
   width: 500px;
   height: 10px;
+}
+
+.hide {
+  visibility: hidden;
+}
+
+[data-rm] {
+  /* border: 1px solid #0ff; */
+}
+
+.rm-cloned {
+}
+.rm-cloned [data-rm] [data-rm] {
+  opacity: 0 !important;
+  /* border: 1px dotted #f00; */
 }

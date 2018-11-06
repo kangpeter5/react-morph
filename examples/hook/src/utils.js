@@ -23,16 +23,20 @@ export const diffRect = (a, b) => ({
   scaleX: parseInt(a.width, 10) / parseInt(b.width, 10)
 });
 
-export const getTransformString = ({
-  translateY,
-  translateX,
-  scaleY,
-  scaleX
-}) => `
+export const getTransformString = (
+  { translateY, translateX, scaleY, scaleX },
+  removeScale = false
+) => `
   translateY(${px(translateY)})
-  translateX(${px(translateX)})
-  scaleY(${scaleY})
-  scaleX(${scaleX})
+	translateX(${px(translateX)})
+	${
+    !removeScale
+      ? `
+	  scaleY(${scaleY})
+	  scaleX(${scaleX})
+	`
+      : ""
+  }
 `;
 
 export const getRect = (elm, { getMargins = false } = {}) => {
@@ -77,3 +81,22 @@ export const interpolateObject = (from = {}, to = {}) => t => ({
     {}
   )
 });
+
+export const cloneElement = (element, portalElement) => {
+  const cloneContainer = document.createElement("div");
+	const clone = element.cloneNode(true);
+
+	cloneContainer.classList.add('rm-cloned');
+	cloneContainer.style.pointerEvents = "none";
+  cloneContainer.appendChild(clone);
+  portalElement.appendChild(cloneContainer);
+
+  return cloneContainer;
+};
+
+export const hideInnerMorph = parent => {
+  Array.from(parent.querySelectorAll(".rm-fade")).map(el => {
+    console.log("el: ", el);
+    // el.style.visibility = "hidden";
+  });
+};

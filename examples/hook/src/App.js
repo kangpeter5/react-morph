@@ -1,45 +1,56 @@
 import React from "react";
-import ReactDOM from "react-dom";
-import { useRef, useState, useEffect, useLayoutEffect } from "react";
+import { useState } from "react";
 import useMorph from "./useMorph";
 
 import "./App.css";
+const spring = {
+  damping: 26,
+  mass: 1,
+  stiffness: 170
+};
 
 function App() {
   const [toggle, setCount] = useState(1);
 
-  const morphTitle = useMorph({
-    spring: {
-      damping: 50
-    }
-  });
-  const morphDiv = useMorph();
-  const morph3 = useMorph();
+  const onClick = () => setCount(c => !c);
+
+  // const morphTitle = useMorph({
+  // spring,
+  //   onClick
+  // });
+  const morphDiv = useMorph({ spring, onClick });
+  const fade = useMorph({ type: "fade", spring });
+  // const morph3 = useMorph();
+
+  // const mock = {};
 
   return (
     <div className="App">
-      <button onClick={() => setCount(c => (c + 1) % 3)}>- Morph -</button>
+      <button onClick={onClick}>- Morph -</button>
+      {/* <button onClick={() => setCount(c => (c + 1) % 3)}>- Morph -</button> */}
       <br />
       {toggle ? (
         <>
-          <h1 />
-          <h1 {...morphTitle}>Hello Morph hook!</h1>
-          <div className="from" {...morphDiv} />
+          {/* <h1 {...morphTitle}>Hello Morph hook!</h1> */}
+          <div key="from" className="from" {...morphDiv()}>
+            <p key="fade-from" {...fade()}>
+              From ipsum
+            </p>
+          </div>
         </>
       ) : (
-          <>
-            <br />
-            <br />
-            <br />
-            <h5 {...morphTitle}>Hello Morph hook!</h5>
-            <div className="to" {...morphDiv} />
-          </>
-        )}
-      hi
-
-          {toggle === 0 && <div className="from" {...morph3} />}
-          {toggle === 1 && <div className="to" {...morph3} />}
-          {toggle === 2 && <div className="three" {...morph3} />}
+        <>
+          {/* <h5 {...morphTitle}>Hello Morph</h5> */}
+          <div key="to" className="to" {...morphDiv()}>
+            <p key="fade-to" {...fade()}>
+              To ipsum
+            </p>
+          </div>
+        </>
+      )}
+      {/* {toggle === 0 && <div className="from" {...morph3} />}
+      {toggle === 1 && <div className="to" {...morph3} />}
+      {toggle === 2 && <div className="three" {...morph3} />} */}
     </div>
   );
 }

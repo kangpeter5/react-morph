@@ -1,11 +1,32 @@
 import { Spring } from "wobble";
+import { clamp, cubicBezier, interpolate } from "@popmotion/popcorn";
 
 import {
   interpolateObject,
   applyOverlayStyle,
   diffRect,
-  getTransformString
+  getTransformString,
+  hideInnerMorph,
+  cloneElement
 } from "./utils";
+
+const resetTranslate = {
+  translateX: 0,
+  translateY: 0,
+  scaleX: 1,
+  scaleY: 1
+};
+
+const ease = cubicBezier(0.5, 0.5, 0, 1);
+const easeInOut = cubicBezier(0.5, 0.5, 0, 1);
+
+const fadeDistance = 0.1;
+const halfClampEnd = clamp(1 - fadeDistance, 1);
+const halfClampStart = clamp(0, fadeDistance);
+const easeFast = x =>
+  easeInOut(interpolate([1 - fadeDistance, 1], [0, 1])(halfClampEnd(x)));
+const easeSlow = x =>
+  easeInOut(interpolate([0, fadeDistance], [0, 1])(halfClampStart(x)));
 
 export default function({
   from,
@@ -19,7 +40,6 @@ export default function({
   onStop = () => {},
   options
 }) {
-  // Create a new spring
   const spring = new Spring({
     fromValue,
     initialVelocity,
@@ -27,32 +47,51 @@ export default function({
     ...options.spring
   });
 
-  // Set listeners for spring events, start the spring.
+  const fromDiffStyle = diffRect(rectFrom, rectTo);
+  const toDiffStyle = diffRect(rectTo, rectFrom);
 
-  const diffStyle = diffRect(rectFrom, rectTo);
-  const cloneContainer = document.createElement("div");
-  const clone = to.cloneNode(true);
+  const toContainer = cloneElement(to, options.portalElement);
+  const fromContainer = cloneElement(from, options.portalElement);
+
+  // hideInnerMorph(toContainer);
+  // hideInnerMorph(fromContainer);
+
   to.style.visibility = "hidden";
+  from.style.visibility = "hidden";
+
+  applyOverlayStyle(toContainer, rectTo);
+  applyOverlayStyle(fromContainer, rectFrom);
+
+  const toFLIP = interpolateObject(fromDiffStyle, resetTranslate);
+  const fromFLIP = interpolateObject(resetTranslate, toDiffStyle);
+
+  const toFade = interpolateObject({ opacity: 0 }, { opacity: 1 });
+  const fromFade = interpolateObject({ opacity: 1 }, { opacity: 0 });
 
   let isDeleted = false;
-
-  cloneContainer.appendChild(clone);
-  options.portalElement.appendChild(cloneContainer);
-
-  applyOverlayStyle(cloneContainer, rectTo);
-  const cloneTranslateIn = interpolateObject(diffStyle, {
-    translateX: 0,
-    translateY: 0,
-    scaleX: 1,
-    scaleY: 1
-  });
 
   spring
     .onStart(onStart)
     .onUpdate(s => {
-      cloneContainer.style.transform = getTransformString(
-        cloneTranslateIn(s.currentValue)
-      );
+      const p = s.currentValue;
+
+      switch (options.type) {
+        case "fade":
+          // toContainer.style.color = "red";
+          // fromContainer.style.color = "green";
+          toContainer.style.opacity = toFade(easeFast(p)).opacity;
+          fromContainer.style.opacity = fromFade(easeSlow(p)).opacity;
+          toContainer.style.transform = getTransformString(toFLIP(p));
+          fromContainer.style.transform = getTransformString(fromFLIP(p));
+
+          break;
+        case "morph":
+        default:
+          toContainer.style.opacity = toFade(ease(p)).opacity;
+          fromContainer.style.opacity = fromFade(ease(p)).opacity;
+          toContainer.style.transform = getTransformString(toFLIP(p));
+          fromContainer.style.transform = getTransformString(fromFLIP(p));
+      }
       onUpdate(s);
     })
     .onStop(s => {
@@ -63,8 +102,11 @@ export default function({
 
   const cleanup = () => {
     if (isDeleted) return;
-    options.portalElement.removeChild(cloneContainer);
-    to.style.visibility = "visible"; // show original to
+    options.portalElement.removeChild(toContainer);
+    options.portalElement.removeChild(fromContainer);
+    to.style.visibility = ""; // show original to
+    from.style.visibility = ""; // show original to
+
     isDeleted = true;
   };
 

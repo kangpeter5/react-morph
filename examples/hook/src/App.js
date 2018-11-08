@@ -6,7 +6,28 @@ import "./App.css";
 const spring = {
   damping: 26,
   mass: 1,
-  stiffness: 170
+  stiffness: 70
+};
+const Item = ({ morph }) => (
+  <div key="from" className="container" {...morph.morphContainer()}>
+    <div className="avatar" {...morph.morphFocus()} />
+    <p {...morph.morphFade()}>Hello Morph hook!</p>
+  </div>
+);
+
+const Details = ({ morph }) => {
+  return (
+    <div
+      key="to"
+      className="container container--lg"
+      {...morph.morphContainer()}
+    >
+      <div className="avatar" {...morph.morphFocus()} />
+      <h1 key="fade-to" {...morph.morphFade()}>
+        Hello Morph hook!
+      </h1>
+    </div>
+  );
 };
 
 function App() {
@@ -14,15 +35,15 @@ function App() {
 
   const onClick = () => setCount(c => !c);
 
-  // const morphTitle = useMorph({
-  // spring,
-  //   onClick
-  // });
-  const morphDiv = useMorph({ spring, onClick });
-  const fade = useMorph({ type: "fade", spring });
-  // const morph3 = useMorph();
+  const morphContainer = useMorph({ spring });
+  const morphFade = useMorph({ type: "fade", spring });
+  const morphFocus = useMorph({ spring });
 
-  // const mock = {};
+  const morph = {
+    morphContainer,
+    morphFade,
+    morphFocus
+  };
 
   return (
     <div className="App">
@@ -30,23 +51,9 @@ function App() {
       {/* <button onClick={() => setCount(c => (c + 1) % 3)}>- Morph -</button> */}
       <br />
       {toggle ? (
-        <>
-          {/* <h1 {...morphTitle}>Hello Morph hook!</h1> */}
-          <div key="from" className="from" {...morphDiv()}>
-            <p key="fade-from" {...fade()}>
-              From ipsum
-            </p>
-          </div>
-        </>
+        <Details morph={morph} />
       ) : (
-        <>
-          {/* <h5 {...morphTitle}>Hello Morph</h5> */}
-          <div key="to" className="to" {...morphDiv()}>
-            <p key="fade-to" {...fade()}>
-              To ipsum
-            </p>
-          </div>
-        </>
+        <Item morph={morph} />
       )}
       {/* {toggle === 0 && <div className="from" {...morph3} />}
       {toggle === 1 && <div className="to" {...morph3} />}

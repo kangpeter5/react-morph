@@ -37,9 +37,15 @@ export default function useMorph(opts = defaultsOptions) {
   const prevSpring = useRef();
 
   useEffect(() => {
-		// if (!to) return;
-
     prevToRef.current = to;
+	});
+
+  useEffect(() => {
+    if (!to) {
+      console.warn("Morph created without any mounted element!");
+      return;
+    }
+
     to.style.visibility = "visible";
 
     if (!from) return;
@@ -78,6 +84,8 @@ export default function useMorph(opts = defaultsOptions) {
   });
 
   const getRef = node => {
+    console.log("node: ", node);
+
     if (!node) return;
     to = node;
   };

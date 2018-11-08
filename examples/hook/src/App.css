@@ -37,6 +37,7 @@ body {
   background: #606;
   width: 40px;
   height: 40px;
+  border-radius: 100px;
 }
 
 .three {
@@ -58,4 +59,26 @@ body {
 .rm-cloned [data-rm] [data-rm] {
   opacity: 0 !important;
   /* border: 1px dotted #f00; */
+}
+
+.avatar {
+  background: #800;
+  width: 50px;
+  height: 50px;
+	border-radius: 100px;
+	margin-right: 1rem;
+}
+
+.container {
+	display: flex;
+	flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  background-color: #fff;
+  padding: 1rem;
+}
+
+.container--lg {
+	padding: 10rem 2rem;
+  min-width: 30vw;
 }

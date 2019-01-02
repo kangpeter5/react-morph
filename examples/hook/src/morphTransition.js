@@ -8,7 +8,7 @@ import {
   getTransformString,
   cloneElement,
   lerp,
-  constPowerEase
+  // constPowerEase
 } from "./utils";
 
 const resetTranslate = {
@@ -20,7 +20,7 @@ const resetTranslate = {
 
 const ease = cubicBezier(.9,.9,.37,.98);
 const easeRev = reversed(ease);
-const easeInOut = cubicBezier(0.5, 0.5, 0, 1);	
+const easeInOut = cubicBezier(0.5, 0.5, 0, 1);
 
 const fadeDistance = 0.1;
 const halfClampEnd = clamp(1 - fadeDistance, 1);

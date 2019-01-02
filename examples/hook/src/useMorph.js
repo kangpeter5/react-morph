@@ -129,13 +129,11 @@ export default function useMorph(opts = defaultsOptions) {
   //   console.log("to: ", cache);
   // }, []);
 
-  const props = id => {
-    return {
-      ref: getRef(id),
-      style: { visibility: "hidden" },
-      "data-rm": id,
-      ...(options.onClick ? { onClick: options.onClick } : {})
-    };
+  const props = {
+    ref: getRef(),
+    style: { visibility: "hidden" },
+    // "data-rm": id,
+    // ...(options.onClick ? { onClick: options.onClick } : {})
   };
 
   return props;
